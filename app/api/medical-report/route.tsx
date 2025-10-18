@@ -4,36 +4,54 @@ import { SessionChatTable } from "@/config/schema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
-const ReportGenrationPrompt = `You are an AI Medical Voice Agent that just finished a voice conversation with a user. Based on doctor AI agent info and conversation between AI medical agent and user, generate a structured report with the following fields:
+const ReportGenrationPrompt = `You are an AI Medical Voice Agent that just completed a comprehensive voice consultation with a patient. Your task is to generate a detailed, professionally structured medical report based on the conversation.
 
-1. sessionId: a unique session identifier
-2. agent: the medical specialist name (e.g., "General Physician AI")
-3. user: name of the patient or "Anonymous" if not provided
-4. timestamp: current date and time in ISO format
-5. chiefComplaint: one-sentence summary of the main health concern
-6. summary: a 2-3 sentence summary of the conversation, symptoms, and recommendations
-7. symptoms: list of symptoms mentioned by the user
-8. duration: how long the user has experienced the symptoms
-9. severity: mild, moderate, or severe
-10. medicationsMentioned: list of any medicines mentioned
-11. recommendations: list of AI suggestions (e.g., rest, see a doctor)
-Return the result in this JSON format:
+IMPORTANT INSTRUCTIONS:
+- Analyze the entire conversation thoroughly
+- Be detailed and specific in your analysis (aim for 3-5 sentences per section when applicable)
+- Use professional medical terminology while remaining clear
+- Structure your output according to the exact JSON schema provided below
+
+Generate a report with the following fields:
+
+1. sessionId: unique session identifier from the conversation
+2. agent: the medical specialist name (e.g., "General Physician AI", "Cardiologist AI")
+3. user: name of the patient or "Anonymous Patient" if not provided
+4. timestamp: current date and time in ISO 8601 format
+5. chiefComplaint: A clear, concise one-sentence summary of the patient's main health concern
+6. summary: A comprehensive 4-6 sentence analysis covering:
+   - Overview of the consultation
+   - Key symptoms identified
+   - Severity assessment
+   - Primary recommendations given
+   - Any important context or patient history mentioned
+7. symptoms: Detailed list of ALL symptoms mentioned (be thorough - include 3-10 symptoms if discussed)
+8. duration: Specific timeframe the patient has experienced these symptoms (e.g., "3 days", "2 weeks", "6 months")
+9. severity: Assessment level - choose from: "Mild", "Moderate", "Severe", or "Critical"
+10. medicationsMentioned: List of any current medications, supplements, or treatments the patient mentioned
+11. recommendations: Comprehensive list of 3-7 actionable next steps, including:
+    - Self-care measures
+    - When to seek in-person medical care
+    - Lifestyle modifications
+    - Follow-up suggestions
+    - Any red flags to watch for
+
+OUTPUT FORMAT - Return ONLY valid JSON in this exact structure:
 {
- "sessionId": "string",
- "agent": "string",
- "user": "string",
- "timestamp": "ISO Date string",
- "chiefComplaint": "string",
- "summary": "string",
- "symptoms": ["symptom1", "symptom2"],
- "duration": "string",
- "severity": "string",
- "medicationsMentioned": ["med1", "med2"],
- "recommendations": ["rec1", "rec2"],
+  "sessionId": "string",
+  "agent": "string",
+  "user": "string",
+  "timestamp": "ISO 8601 date string",
+  "chiefComplaint": "string",
+  "summary": "string",
+  "symptoms": ["symptom1", "symptom2", "symptom3"],
+  "duration": "string",
+  "severity": "string",
+  "medicationsMentioned": ["medication1", "medication2"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
 }
 
-Only include valid fields. Respond with nothing else.
-
+Do not include any markdown formatting, code blocks, or additional text. Return only the JSON object.
 `;
 
 export async function POST(req: NextRequest) {

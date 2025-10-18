@@ -210,4 +210,44 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
+
+  /* Decorative background pattern */
+  .bg-pattern-dots {
+    background-image: radial-gradient(
+      circle,
+      hsla(var(--primary), 0.05) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+  }
+
+  .bg-pattern-grid {
+    background-image: linear-gradient(
+        hsla(var(--border), 0.5) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, hsla(var(--border), 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-pattern-diagonal {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      hsla(var(--primary), 0.03) 20px,
+      hsla(var(--primary), 0.03) 40px
+    );
+  }
+
+  /* Glow effects for cards */
+  .card-glow-primary:hover {
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.3),
+      0 4px 8px -2px hsl(0 0% 0% / 0.1);
+  }
+
+  .card-glow-accent:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.25),
+      0 4px 8px -2px hsl(0 0% 0% / 0.1);
+  }
 }

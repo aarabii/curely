@@ -7,7 +7,7 @@ function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <AppHeader />
       <div className="container-grid py-10">{children}</div>
     </div>

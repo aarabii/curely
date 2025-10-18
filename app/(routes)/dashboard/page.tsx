@@ -11,7 +11,7 @@ function Dashboard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="p-6 md:p-10 lg:p-12 space-y-10"
+      className="relative p-6 md:p-10 lg:p-12 space-y-10 bg-pattern-dots"
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <motion.div

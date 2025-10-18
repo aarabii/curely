@@ -99,6 +99,7 @@ export default function HeroSectionOne() {
                 whileTap={{ scale: 0.98 }}
                 className="px-8 py-4 bg-primary text-primary-foreground font-sans font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 style={{ boxShadow: "var(--shadow-md)" }}
+                title="Your AI doctor awaits — no white coat required!"
               >
                 Get Started →
               </motion.button>
@@ -107,6 +108,7 @@ export default function HeroSectionOne() {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
               className="px-8 py-4 bg-card text-card-foreground border border-border font-sans font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+              title="Dive deeper into the future of healthcare!"
             >
               Learn More
             </motion.button>
@@ -187,8 +189,9 @@ const FeatureCard = ({
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, delay: 1.8 + index * 0.1 }}
     whileHover={{ y: -8, scale: 1.02 }}
-    className="p-6 rounded-xl border border-border bg-card group cursor-pointer transition-all duration-300"
+    className="p-6 rounded-xl border border-border bg-card group cursor-pointer transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,0,255,0.15)]"
     style={{ boxShadow: "var(--shadow-sm)" }}
+    title={`${title} — Because healthcare should be accessible!`}
   >
     <motion.div
       whileHover={{ scale: 1.1, rotate: 5 }}
@@ -232,6 +235,7 @@ const Navbar = () => {
             whileTap={{ scale: 0.98 }}
             className="px-6 py-2.5 bg-primary text-primary-foreground font-sans font-semibold rounded-lg transition-all duration-300"
             style={{ boxShadow: "var(--shadow-sm)" }}
+            title="Welcome back! Your health dashboard misses you."
           >
             Login
           </motion.button>
@@ -241,7 +245,12 @@ const Navbar = () => {
           <UserButton />
           <Link href={"/dashboard"}>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button className="font-sans">Dashboard</Button>
+              <Button
+                className="font-sans"
+                title="Back to your personalized health hub!"
+              >
+                Dashboard
+              </Button>
             </motion.div>
           </Link>
         </div>

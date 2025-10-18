@@ -102,6 +102,7 @@ function AddNewSessionDialog() {
             className="font-sans font-semibold px-8 py-6 text-base"
             disabled={!paidUser && historyList?.length >= 1}
             style={{ boxShadow: "var(--shadow-md)" }}
+            title="Let's get you feeling better, shall we?"
           >
             Start consultation
           </Button>
@@ -174,7 +175,11 @@ function AddNewSessionDialog() {
         <DialogFooter className="gap-3 sm:gap-0">
           <DialogClose>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button variant={"outline"} className="font-sans">
+              <Button
+                variant={"outline"}
+                className="font-sans"
+                title="Changed your mind? No judgment here!"
+              >
                 Close
               </Button>
             </motion.div>
@@ -186,6 +191,7 @@ function AddNewSessionDialog() {
                 disabled={!note || loading}
                 onClick={() => onClickNext()}
                 className="font-sans"
+                title="Let's find you the perfect AI doctor!"
               >
                 {loading ? (
                   <>
@@ -206,6 +212,7 @@ function AddNewSessionDialog() {
                 disabled={loading || !selectedDoctor}
                 onClick={() => onStartConsultation()}
                 className="font-sans"
+                title="Off to the virtual examination room!"
               >
                 {loading ? (
                   <>
