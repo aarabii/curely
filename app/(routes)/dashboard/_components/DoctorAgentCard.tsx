@@ -7,8 +7,8 @@ import { useAuth } from "@clerk/nextjs";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { IconArrowRight } from "@tabler/icons-react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 type props = {
@@ -33,10 +33,16 @@ function DoctorAgentCard({ doctorAgent }: props) {
         selectedDoctor: doctorAgent,
       });
       if (result.data?.sessionId) {
+        toast.success("Voila! All sorted.", {
+          description: "Spinning up your AI specialist now.",
+        });
         router.push("/dashboard/medical-agent/" + result.data.sessionId);
       }
     } catch (err) {
       console.error("DoctorAgentCard start consultation failed", err);
+      toast.error("Whoops! The wires got tangled.", {
+        description: "Please try again. Our bots are already on it.",
+      });
     } finally {
       setLoading(false);
     }
@@ -82,11 +88,19 @@ function DoctorAgentCard({ doctorAgent }: props) {
             className="w-full mt-3 font-sans font-semibold"
             disabled={!paidUser && doctorAgent.subscriptionRequired}
           >
-            Start Consultation
             {loading ? (
-              <Loader2 className="animate-spin ml-2" />
+              <>
+                Consulting the digital sages...
+                <Loader2
+                  aria-label="Consulting the digital sages"
+                  className="animate-spin ml-2"
+                />
+              </>
             ) : (
-              <IconArrowRight className="ml-2" />
+              <>
+                Start consultation
+                <ArrowRight className="ml-2" />
+              </>
             )}
           </Button>
         </motion.div>

@@ -20,10 +20,11 @@ function Dashboard() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <h2 className="font-serif font-bold text-4xl md:text-5xl text-foreground">
-            My Dashboard
+            Your health, neatly organized
           </h2>
           <p className="text-muted-foreground font-sans mt-2 text-lg">
-            Manage your medical consultations and health records
+            Manage consultations, reports, and AI agents — we handle the heavy
+            lifting while you sip your tea.
           </p>
         </motion.div>
         <motion.div

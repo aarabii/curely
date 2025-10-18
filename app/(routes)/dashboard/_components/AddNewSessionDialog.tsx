@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { SessionDetail } from "./types";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 function AddNewSessionDialog() {
   const [note, setNote] = useState<string>("");
@@ -55,8 +56,14 @@ function AddNewSessionDialog() {
         notes: note,
       });
       setSuggestedDoctors(result.data);
+      toast.success("Recommendations incoming", {
+        description: "Rummaging through our digital medicine cabinet...",
+      });
     } catch (err) {
       console.error("suggest-doctors failed", err);
+      toast.error("Hmm, that didn’t go as planned", {
+        description: "Please try again. Our AI is taking a deep breath.",
+      });
     } finally {
       setLoading(false);
     }
@@ -70,10 +77,16 @@ function AddNewSessionDialog() {
         selectedDoctor,
       });
       if (result.data?.sessionId) {
+        toast.success("Voila! All sorted.", {
+          description: "Spinning up your AI specialist now.",
+        });
         router.push("/dashboard/medical-agent/" + result.data.sessionId);
       }
     } catch (err) {
       console.error("start consultation failed", err);
+      toast.error("Whoops! The wires got tangled.", {
+        description: "Please try again in a moment.",
+      });
     } finally {
       setLoading(false);
     }
@@ -90,7 +103,7 @@ function AddNewSessionDialog() {
             disabled={!paidUser && historyList?.length >= 1}
             style={{ boxShadow: "var(--shadow-md)" }}
           >
-            Start Consultation
+            Start consultation
           </Button>
         </motion.div>
       </DialogTrigger>
@@ -100,7 +113,7 @@ function AddNewSessionDialog() {
       >
         <DialogHeader>
           <DialogTitle className="font-serif text-3xl text-foreground">
-            {!suggestedDoctors ? "Add Basic Details" : "Select Your Specialist"}
+            {!suggestedDoctors ? "Tell us what’s up" : "Pick your specialist"}
           </DialogTitle>
           <DialogDescription asChild>
             <AnimatePresence mode="wait">
@@ -118,7 +131,7 @@ function AddNewSessionDialog() {
                       Describe your symptoms or health concerns
                     </h2>
                     <Textarea
-                      placeholder="e.g., I've been experiencing headaches and fatigue for the past few days..."
+                      placeholder="e.g., I’ve been experiencing headaches and fatigue for the past few days…"
                       className="h-[220px] mt-2 bg-input border-border text-foreground font-sans resize-none focus:ring-2 focus:ring-primary transition-all"
                       onChange={(e) => setNote(e.target.value)}
                       value={note}
@@ -174,11 +187,16 @@ function AddNewSessionDialog() {
                 onClick={() => onClickNext()}
                 className="font-sans"
               >
-                Next
                 {loading ? (
-                  <Loader2 className="animate-spin ml-2" />
+                  <>
+                    Consulting the digital sages...
+                    <Loader2 className="animate-spin ml-2" />
+                  </>
                 ) : (
-                  <ArrowRight className="ml-2" />
+                  <>
+                    Next
+                    <ArrowRight className="ml-2" />
+                  </>
                 )}
               </Button>
             </motion.div>
@@ -189,11 +207,16 @@ function AddNewSessionDialog() {
                 onClick={() => onStartConsultation()}
                 className="font-sans"
               >
-                Start Consultation
                 {loading ? (
-                  <Loader2 className="animate-spin ml-2" />
+                  <>
+                    Rummaging through our digital medicine cabinet...
+                    <Loader2 className="animate-spin ml-2" />
+                  </>
                 ) : (
-                  <ArrowRight className="ml-2" />
+                  <>
+                    Start consultation
+                    <ArrowRight className="ml-2" />
+                  </>
                 )}
               </Button>
             </motion.div>

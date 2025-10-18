@@ -31,10 +31,11 @@ function HistoryList() {
         transition={{ duration: 0.5 }}
       >
         <h2 className="font-serif font-bold text-3xl md:text-4xl text-foreground">
-          Consultation History
+          Consultation history
         </h2>
         <p className="text-muted-foreground font-sans mt-2 text-lg">
-          View and manage your past medical consultations
+          Your previous chats and reports live here — tidy, searchable, and
+          ready when you are.
         </p>
       </motion.div>
 
@@ -59,11 +60,11 @@ function HistoryList() {
             />
           </motion.div>
           <h2 className="font-serif font-bold text-2xl mt-6 text-foreground">
-            No Recent Consultations
+            A fresh start!
           </h2>
           <p className="text-muted-foreground font-sans mt-2 text-center max-w-md">
-            It looks like you haven&apos;t consulted with any doctors yet. Start
-            your first consultation now.
+            What&apos;s on your mind? Don&apos;t worry, I&apos;m all ears (or…
+            code?). Kick off your first consultation below.
           </p>
           <div className="mt-6">
             <AddNewSessionDialog />
