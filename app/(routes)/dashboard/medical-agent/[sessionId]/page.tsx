@@ -3,12 +3,13 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { doctorAgent } from "../../_components/DoctorAgentCard";
-import { Circle, Loader2, PhoneCall, PhoneOff } from "lucide-react";
+import { Loader2, PhoneCall, PhoneOff } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Vapi from "@vapi-ai/web";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type SessionDetail = {
   id: number;
@@ -56,37 +57,24 @@ function MedicalVoiceAgent() {
     }
   };
 
-  // Fixed timer useEffect
+  // timer effect
   useEffect(() => {
     if (start) {
-      // Clear any existing timer
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-
-      // Start new timer
+      if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
+        setTime((prev) => prev + 1);
       }, 1000);
-    } else {
-      // Clear timer when stopped
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-
-    // Cleanup on unmount
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [start]);
 
   const handleCallStart = useCallback(() => {
     setLoading(false);
-    console.log("Call started");
     setCallStarted(true);
   }, []);
 
@@ -214,69 +202,187 @@ function MedicalVoiceAgent() {
   };
 
   return (
-    <div className="p-5 border rounded-3xl bg-secondary">
-      <div className="flex justify-between items-center">
-        <h2 className="p-1 px-2 border rounded-md flex gap-2 items-center">
-          {" "}
-          <Circle
-            className={`h-4 w-4 rounded-full ${
-              callStarted ? "bg-green-500" : "bg-red-500"
-            }`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="p-8 md:p-10 border border-border rounded-2xl bg-card m-6"
+      style={{ boxShadow: "var(--shadow-xl)" }}
+    >
+      <div className="flex justify-between items-center mb-6">
+        <motion.div
+          className="px-4 py-2 border border-border rounded-lg flex gap-3 items-center bg-background/50"
+          animate={{
+            borderColor: callStarted
+              ? "hsl(var(--accent))"
+              : "hsl(var(--destructive))",
+          }}
+        >
+          <motion.div
+            animate={{
+              scale: callStarted ? [1, 1.2, 1] : 1,
+              backgroundColor: callStarted
+                ? "hsl(var(--accent))"
+                : "hsl(var(--destructive))",
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="h-4 w-4 rounded-full"
           />
-          {callStarted ? "Connected..." : "Not Connected"}
+          <span className="font-sans font-medium text-foreground">
+            {callStarted ? "Connected" : "Not Connected"}
+          </span>
+        </motion.div>
+        <h2 className="font-mono font-bold text-2xl text-muted-foreground">
+          {formatTime(time)}
         </h2>
-        <h2 className="font-bold text-xl text-gray-400">{formatTime(time)}</h2>
       </div>
+
       {sessionDetail && (
-        <div className="flex items-center flex-col mt-10">
-          <Image
-            src={sessionDetail?.selectedDoctor?.image}
-            alt={sessionDetail?.selectedDoctor?.specialist || " "}
-            width={120}
-            height={120}
-            className="h-[100px] w-[100px] object-cover rounded-full"
-          />
-          <h2 className="mt-2 text-lg">
+        <div className="flex items-center flex-col mt-8">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative"
+          >
+            <motion.div
+              animate={callStarted ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Image
+                src={sessionDetail?.selectedDoctor?.image}
+                alt={sessionDetail?.selectedDoctor?.specialist || " "}
+                width={140}
+                height={140}
+                className="h-[140px] w-[140px] object-cover rounded-full border-4 border-border"
+              />
+            </motion.div>
+            {callStarted && (
+              <motion.div
+                className="absolute inset-0 rounded-full border-4 border-primary"
+                animate={{ scale: [1, 1.2, 1.2, 1], opacity: [1, 0, 0, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+          </motion.div>
+
+          <h2 className="mt-4 text-2xl font-serif font-bold text-foreground">
             {sessionDetail?.selectedDoctor?.specialist}
           </h2>
-          <p className="text-sm text-gray-400">AI Medical Voice Agent</p>
+          <p className="text-base text-muted-foreground font-sans">
+            AI Medical Voice Agent
+          </p>
 
-          <div className="mt-12 overflow-y-auto flex flex-col items-center px:10 md:px-28 lg:px-52 xl:px-72">
-            {messages?.slice(-4).map((msg, index) => (
-              <h2 className="text-gray-400 p-2" key={index}>
-                {msg.role}:{msg.text}
-              </h2>
-            ))}
+          <div className="mt-10 w-full max-w-3xl overflow-y-auto max-h-[400px] space-y-4 px-4">
+            <AnimatePresence>
+              {messages?.slice(-4).map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[70%] p-4 rounded-2xl ${
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-sm"
+                        : "bg-card border border-border text-foreground rounded-bl-sm"
+                    }`}
+                    style={
+                      msg.role !== "user"
+                        ? { boxShadow: "var(--shadow-sm)" }
+                        : {}
+                    }
+                  >
+                    <p className="text-sm font-sans font-medium mb-1 opacity-70 capitalize">
+                      {msg.role}
+                    </p>
+                    <p className="font-sans leading-relaxed">{msg.text}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
             {liveTanscript && liveTanscript?.length > 0 && (
-              <h2 className="text-lg">
-                {currentRole}:{liveTanscript}
-              </h2>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex ${
+                  currentRole === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[70%] p-4 rounded-2xl ${
+                    currentRole === "user"
+                      ? "bg-primary/70 text-primary-foreground rounded-br-sm"
+                      : "bg-muted border border-border text-foreground rounded-bl-sm"
+                  }`}
+                >
+                  <p className="text-sm font-sans font-medium mb-1 opacity-70 capitalize">
+                    {currentRole}
+                  </p>
+                  <p className="font-sans leading-relaxed">{liveTanscript}</p>
+                  <motion.span
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    className="inline-block ml-1"
+                  >
+                    ▋
+                  </motion.span>
+                </div>
+              </motion.div>
             )}
           </div>
+
           {!callStarted ? (
-            <Button onClick={StartCall} className="mt-20" disabled={loading}>
-              {" "}
-              {loading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <PhoneCall />
-              )}{" "}
-              Start Call
-            </Button>
-          ) : (
-            <Button
-              variant={"destructive"}
-              onClick={endCall}
-              disabled={loading}
+            <motion.div
+              className="mt-12"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {" "}
-              {loading ? <Loader2 className="animate-spin" /> : <PhoneOff />}
-              Disconnect
-            </Button>
+              <Button
+                onClick={StartCall}
+                disabled={loading}
+                className="px-10 py-6 text-lg font-sans font-semibold"
+                style={{ boxShadow: "var(--shadow-md)" }}
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin mr-2" />
+                ) : (
+                  <PhoneCall className="mr-2" />
+                )}
+                Start Call
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="mt-12"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button
+                variant={"destructive"}
+                onClick={endCall}
+                disabled={loading}
+                className="px-10 py-6 text-lg font-sans font-semibold"
+                style={{ boxShadow: "var(--shadow-md)" }}
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin mr-2" />
+                ) : (
+                  <PhoneOff className="mr-2" />
+                )}
+                Disconnect
+              </Button>
+            </motion.div>
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

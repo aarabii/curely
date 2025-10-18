@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import AddNewSessionDialog from "./AddNewSessionDialog";
 import { doctorAgent } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@clerk/nextjs";
@@ -10,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconArrowRight } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 type props = {
   doctorAgent: doctorAgent;
@@ -43,35 +43,55 @@ function DoctorAgentCard({ doctorAgent }: props) {
   };
 
   return (
-    <div className="realtive">
+    <motion.div
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.3 }}
+      className="relative group rounded-xl border border-border bg-card overflow-hidden cursor-pointer"
+      style={{ boxShadow: "var(--shadow-md)" }}
+    >
       {doctorAgent?.subscriptionRequired && (
-        <Badge className="absolute m-2  ">Premium</Badge>
+        <Badge className="absolute top-3 right-3 z-10 bg-primary text-primary-foreground font-sans font-semibold">
+          Premium
+        </Badge>
       )}
-      <Image
-        src={doctorAgent.image}
-        alt={doctorAgent.specialist}
-        width={200}
-        height={300}
-        className="w-full h-[250px] object-cover rounded-xl"
-      />
-      <h2 className="font-bold mt-1 ">{doctorAgent.specialist}</h2>
-      <p className="line-clamp-2 text-sm text-gray-500">
-        {doctorAgent.description}
-      </p>
-      <Button
-        onClick={onStartConsultation}
-        className="w-full mt-2"
-        disabled={!paidUser && doctorAgent.subscriptionRequired}
-      >
-        {" "}
-        Start Consultation{" "}
-        {loading ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <IconArrowRight />
-        )}{" "}
-      </Button>
-    </div>
+
+      <div className="relative overflow-hidden">
+        <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.4 }}>
+          <Image
+            src={doctorAgent.image}
+            alt={doctorAgent.specialist}
+            width={400}
+            height={500}
+            className="w-full h-[280px] object-cover"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      <div className="p-5 space-y-3">
+        <h2 className="font-serif font-bold text-xl text-foreground">
+          {doctorAgent.specialist}
+        </h2>
+        <p className="line-clamp-2 text-sm text-muted-foreground font-sans leading-relaxed">
+          {doctorAgent.description}
+        </p>
+
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            onClick={onStartConsultation}
+            className="w-full mt-3 font-sans font-semibold"
+            disabled={!paidUser && doctorAgent.subscriptionRequired}
+          >
+            Start Consultation
+            {loading ? (
+              <Loader2 className="animate-spin ml-2" />
+            ) : (
+              <IconArrowRight className="ml-2" />
+            )}
+          </Button>
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }
 

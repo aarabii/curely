@@ -19,6 +19,7 @@ import SuggestedDoctorCard from "./SuggestedDoctorCard";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { SessionDetail } from "./types";
+import { motion, AnimatePresence } from "framer-motion";
 
 function AddNewSessionDialog() {
   const [note, setNote] = useState<string>("");
@@ -83,62 +84,119 @@ function AddNewSessionDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          className="mt-3"
-          disabled={!paidUser && historyList?.length >= 1}
-        >
-          Start Consultation
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            className="font-sans font-semibold px-8 py-6 text-base"
+            disabled={!paidUser && historyList?.length >= 1}
+            style={{ boxShadow: "var(--shadow-md)" }}
+          >
+            Start Consultation
+          </Button>
+        </motion.div>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        className="max-w-3xl bg-card border-border"
+        style={{ boxShadow: "var(--shadow-xl)" }}
+      >
         <DialogHeader>
-          <DialogTitle>Add Basic Details</DialogTitle>
+          <DialogTitle className="font-serif text-3xl text-foreground">
+            {!suggestedDoctors ? "Add Basic Details" : "Select Your Specialist"}
+          </DialogTitle>
           <DialogDescription asChild>
-            {!suggestedDoctors ? (
-              <div>
-                <h2>Add Symptoms or Any Other Details</h2>
-                <Textarea
-                  placeholder="Add Details here..."
-                  className="h-[200px] mt-1"
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </div>
-            ) : (
-              <div>
-                <h2>Select the Doctor</h2>
-                <div className="grid grid-cols-3 gap-5">
-                  {/* SuggestedDoctors */}
-                  {suggestedDoctors.map((doctor, index) => (
-                    <SuggestedDoctorCard
-                      doctorAgent={doctor}
-                      key={index}
-                      setSelectedDoctor={setSelectedDoctor}
-                      selectedDoctor={selectedDoctor}
+            <AnimatePresence mode="wait">
+              {!suggestedDoctors ? (
+                <motion.div
+                  key="input"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4 pt-4"
+                >
+                  <div>
+                    <h2 className="text-lg font-sans text-muted-foreground mb-3">
+                      Describe your symptoms or health concerns
+                    </h2>
+                    <Textarea
+                      placeholder="e.g., I've been experiencing headaches and fatigue for the past few days..."
+                      className="h-[220px] mt-2 bg-input border-border text-foreground font-sans resize-none focus:ring-2 focus:ring-primary transition-all"
+                      onChange={(e) => setNote(e.target.value)}
+                      value={note}
                     />
-                  ))}
-                </div>
-              </div>
-            )}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="doctors"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4 pt-4"
+                >
+                  <h2 className="text-lg font-sans text-muted-foreground">
+                    Based on your symptoms, we recommend these specialists
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    {suggestedDoctors.map((doctor, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <SuggestedDoctorCard
+                          doctorAgent={doctor}
+                          setSelectedDoctor={setSelectedDoctor}
+                          selectedDoctor={selectedDoctor}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter className="gap-3 sm:gap-0">
           <DialogClose>
-            <Button variant={"outline"}>Close</Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <Button variant={"outline"} className="font-sans">
+                Close
+              </Button>
+            </motion.div>
           </DialogClose>
 
           {!suggestedDoctors ? (
-            <Button disabled={!note || loading} onClick={() => onClickNext()}>
-              Next{" "}
-              {loading ? <Loader2 className="animate-spin" /> : <ArrowRight />}
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                disabled={!note || loading}
+                onClick={() => onClickNext()}
+                className="font-sans"
+              >
+                Next
+                {loading ? (
+                  <Loader2 className="animate-spin ml-2" />
+                ) : (
+                  <ArrowRight className="ml-2" />
+                )}
+              </Button>
+            </motion.div>
           ) : (
-            <Button
-              disabled={loading || !selectedDoctor}
-              onClick={() => onStartConsultation()}
-            >
-              Start Consultation
-              {loading ? <Loader2 className="animate-spin" /> : <ArrowRight />}
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                disabled={loading || !selectedDoctor}
+                onClick={() => onStartConsultation()}
+                className="font-sans"
+              >
+                Start Consultation
+                {loading ? (
+                  <Loader2 className="animate-spin ml-2" />
+                ) : (
+                  <ArrowRight className="ml-2" />
+                )}
+              </Button>
+            </motion.div>
           )}
         </DialogFooter>
       </DialogContent>
