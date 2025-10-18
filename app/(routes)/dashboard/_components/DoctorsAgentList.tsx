@@ -12,11 +12,12 @@ function DoctorsAgentList() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="font-serif font-bold text-3xl md:text-4xl text-foreground">
-          AI Specialist Doctors
+        <h2 className="font-serif font-bold text-3xl md:text-4xl text-foreground leading-tight">
+          Meet Your AI Dream Team 🤖⚕️
         </h2>
-        <p className="text-muted-foreground font-sans mt-2 text-lg">
-          Connect with specialized AI medical agents for personalized care
+        <p className="text-muted-foreground font-sans mt-2 text-lg max-w-3xl">
+          Pick your specialist! From heart whisperers to brain wizards—these AI
+          docs are ready to help (and they never double-book appointments) 📅✨
         </p>
       </motion.div>
 

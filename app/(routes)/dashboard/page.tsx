@@ -19,12 +19,12 @@ function Dashboard() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <h2 className="font-serif font-bold text-4xl md:text-5xl text-foreground">
-            Your health, neatly organized
+          <h2 className="font-serif font-bold text-4xl md:text-5xl text-foreground leading-tight">
+            Your Health Hub 🏥✨
           </h2>
-          <p className="text-muted-foreground font-sans mt-2 text-lg">
-            Manage consultations, reports, and AI agents — we handle the heavy
-            lifting while you sip your tea.
+          <p className="text-muted-foreground font-sans mt-2 text-lg max-w-2xl">
+            All your medical chats, reports, and AI doc buddies in one place. We
+            do the organizing, you do the healing (and maybe some Netflix) 📺🍿
           </p>
         </motion.div>
         <motion.div

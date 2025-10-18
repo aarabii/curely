@@ -48,7 +48,7 @@ export default function HeroSectionOne() {
           className="text-center space-y-8"
         >
           <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold text-foreground leading-tight">
-            {"Transform Healthcare with AI".split(" ").map((word, index) => (
+            {"Your Personal AI Doctor".split(" ").map((word, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
@@ -70,7 +70,7 @@ export default function HeroSectionOne() {
               transition={{ duration: 0.6, delay: 0.8 }}
               className="text-primary"
             >
-              Medical Voice Agents
+              (Who Never Sleeps!) 😴🚫
             </motion.span>
           </h1>
 
@@ -81,9 +81,10 @@ export default function HeroSectionOne() {
             className="max-w-3xl mx-auto"
           >
             <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground font-sans">
-              Provide 24/7 intelligent medical support using conversational AI.
-              Check symptoms, book appointments, and deliver empathetic care
-              with voice-first automation.
+              Healthcare that actually listens! 🎧 Get 24/7 medical advice from
+              AI docs who won't judge your midnight pizza choices. Talk to
+              specialists, get instant diagnoses, and feel better—all without
+              leaving your couch! 🛋️✨
             </p>
           </motion.div>
 
@@ -132,16 +133,34 @@ export default function HeroSectionOne() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2 }}
-          className="mt-24 rounded-2xl border border-border bg-card p-8 md:p-12"
+          className="mt-24 rounded-2xl border-2 border-primary/20 bg-gradient-to-br from-card via-primary/5 to-accent/5 p-8 md:p-12"
           style={{ boxShadow: "var(--shadow-xl)" }}
         >
           <div className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-              Experience the Future of Healthcare
-            </h2>
+            <motion.h2
+              className="text-3xl md:text-4xl font-serif font-bold text-foreground"
+              animate={{
+                backgroundImage: [
+                  "linear-gradient(to right, hsl(var(--foreground)), hsl(var(--primary)))",
+                  "linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)))",
+                  "linear-gradient(to right, hsl(var(--accent)), hsl(var(--foreground)))",
+                  "linear-gradient(to right, hsl(var(--foreground)), hsl(var(--primary)))",
+                ],
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+              style={{
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              Healthcare That Actually Gets It 🎯
+            </motion.h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our AI-powered medical voice agents provide instant, accurate, and
-              empathetic healthcare support.
+              No more "turn your head and cough" awkwardness! Our AI docs
+              listen, understand, and help—all through the magic of voice. It's
+              like having a doctor friend who's always available (and never
+              judges your lifestyle choices) 🤖💙
             </p>
           </div>
         </motion.div>
@@ -153,23 +172,23 @@ export default function HeroSectionOne() {
 const features = [
   {
     icon: Activity,
-    title: "24/7 Availability",
-    description: "Round-the-clock medical support whenever you need it",
+    title: "24/7 Availability ⏰",
+    description: "We're always awake! Unlike your real doctor at 3 AM 😴",
   },
   {
     icon: MessageCircle,
-    title: "Voice First",
-    description: "Natural conversations with AI medical specialists",
+    title: "Voice First 🎤",
+    description: "Just talk! No awkward waiting room small talk required",
   },
   {
     icon: Shield,
-    title: "Secure & Private",
-    description: "HIPAA compliant with end-to-end encryption",
+    title: "Fort Knox Secure 🔒",
+    description: "Your secrets are safer than your browser history",
   },
   {
     icon: Heart,
-    title: "Empathetic Care",
-    description: "Compassionate AI trained on medical best practices",
+    title: "Actually Cares ❤️",
+    description: "AI with a heart! (Metaphorically speaking, of course)",
   },
 ];
 

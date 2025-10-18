@@ -2,6 +2,12 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-*: initial;
+  --color-format: hsl;
+}
+
 @keyframes aurora {
   from {
     background-position: 50% 50%, 50% 50%;

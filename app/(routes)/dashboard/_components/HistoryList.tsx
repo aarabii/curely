@@ -47,12 +47,12 @@ function HistoryList() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="font-serif font-bold text-3xl md:text-4xl text-foreground">
-          Consultation history
+        <h2 className="font-serif font-bold text-3xl md:text-4xl text-foreground leading-tight">
+          Your Medical Timeline 📚
         </h2>
-        <p className="text-muted-foreground font-sans mt-2 text-lg">
-          Your previous chats and reports live here — tidy, searchable, and
-          ready when you are.
+        <p className="text-muted-foreground font-sans mt-2 text-lg max-w-3xl">
+          All your health adventures documented! From "just a cold" to "WebMD
+          made me panic" — it's all here, organized and ready to revisit 🔍✨
         </p>
       </motion.div>
 
@@ -111,11 +111,12 @@ function HistoryList() {
             />
           </motion.div>
           <h2 className="font-serif font-bold text-2xl mt-6 text-foreground">
-            A fresh start!
+            Nothing here... yet! 🌱
           </h2>
-          <p className="text-muted-foreground font-sans mt-2 text-center max-w-md">
-            What&apos;s on your mind? Don&apos;t worry, I&apos;m all ears (or…
-            code?). Kick off your first consultation below.
+          <p className="text-muted-foreground font-sans mt-2 text-center max-w-md px-4">
+            Your medical history is looking pretty empty! Time to chat with an
+            AI doc. Don't worry, they won't judge your WebMD midnight searches
+            🔍🌙
           </p>
           <div className="mt-6">
             <AddNewSessionDialog />
