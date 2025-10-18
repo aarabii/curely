@@ -52,8 +52,16 @@ function MedicalVoiceAgent() {
         "/api/session-chat?sessionId=" + sessionId
       );
       setSessionDetail(result.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error("GetSessionDetails failed", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to load session details";
+      toast.error("Session Error", {
+        description: errorMessage,
+      });
+      if (err.response?.status === 404) {
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -172,24 +180,48 @@ function MedicalVoiceAgent() {
       setVapiInstance(null);
       setTime(0); // Reset timer
 
-      await GenerateReport();
-      toast.success("Your report is Generated");
-      router.replace("/dashboard");
-    } catch (err) {
+      try {
+        await GenerateReport();
+        toast.success("Your report is Generated");
+        router.replace("/dashboard");
+      } catch (reportErr) {
+        // Report generation failed but call ended successfully
+        console.error("Report generation failed but continuing", reportErr);
+        toast.warning("Call ended successfully", {
+          description:
+            "Report generation failed. Please try viewing your session later.",
+        });
+        router.replace("/dashboard");
+      }
+    } catch (err: any) {
       console.error("endCall failed", err);
+      toast.error("Failed to end call", {
+        description:
+          "An error occurred while ending the call. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const GenerateReport = async () => {
-    const result = await axios.post("/api/medical-report", {
-      messages: messages,
-      sessionDetail: sessionDetail,
-      sessionId,
-    });
-    console.log(result.data);
-    return result.data;
+    try {
+      const result = await axios.post("/api/medical-report", {
+        messages: messages,
+        sessionDetail: sessionDetail,
+        sessionId,
+      });
+      console.log(result.data);
+      return result.data;
+    } catch (err: any) {
+      console.error("GenerateReport failed", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to generate report";
+      toast.error("Report Generation Failed", {
+        description: errorMessage,
+      });
+      throw err;
+    }
   };
 
   // Helper function to format time as MM:SS
@@ -249,13 +281,26 @@ function MedicalVoiceAgent() {
               animate={callStarted ? { scale: [1, 1.05, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <Image
-                src={sessionDetail?.selectedDoctor?.image}
-                alt={sessionDetail?.selectedDoctor?.specialist || " "}
-                width={140}
-                height={140}
-                className="h-[140px] w-[140px] object-cover rounded-full border-4 border-border"
-              />
+              {sessionDetail?.selectedDoctor?.image &&
+              sessionDetail.selectedDoctor.image.startsWith("/") ? (
+                <Image
+                  src={sessionDetail.selectedDoctor.image}
+                  alt={sessionDetail?.selectedDoctor?.specialist || "Doctor"}
+                  width={140}
+                  height={140}
+                  className="h-[140px] w-[140px] object-cover rounded-full border-4 border-border"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder-doctor.png";
+                  }}
+                />
+              ) : (
+                <div className="h-[140px] w-[140px] rounded-full border-4 border-border bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                  <span className="text-4xl font-serif font-bold text-primary">
+                    {sessionDetail?.selectedDoctor?.specialist?.charAt(0) ||
+                      "D"}
+                  </span>
+                </div>
+              )}
             </motion.div>
             {callStarted && (
               <motion.div
@@ -347,15 +392,15 @@ function MedicalVoiceAgent() {
               <Button
                 onClick={StartCall}
                 disabled={loading}
-                className="px-10 py-6 text-lg font-sans font-semibold"
+                className="px-10 py-6 text-lg font-sans font-semibold max-w-full"
                 style={{ boxShadow: "var(--shadow-md)" }}
               >
                 {loading ? (
-                  <Loader2 className="animate-spin mr-2" />
+                  <Loader2 className="animate-spin mr-2 flex-shrink-0" />
                 ) : (
-                  <PhoneCall className="mr-2" />
+                  <PhoneCall className="mr-2 flex-shrink-0" />
                 )}
-                Start Call
+                <span className="truncate">Start Call</span>
               </Button>
             </motion.div>
           ) : (
@@ -368,15 +413,15 @@ function MedicalVoiceAgent() {
                 variant={"destructive"}
                 onClick={endCall}
                 disabled={loading}
-                className="px-10 py-6 text-lg font-sans font-semibold"
+                className="px-10 py-6 text-lg font-sans font-semibold max-w-full"
                 style={{ boxShadow: "var(--shadow-md)" }}
               >
                 {loading ? (
-                  <Loader2 className="animate-spin mr-2" />
+                  <Loader2 className="animate-spin mr-2 flex-shrink-0" />
                 ) : (
-                  <PhoneOff className="mr-2" />
+                  <PhoneOff className="mr-2 flex-shrink-0" />
                 )}
-                Disconnect
+                <span className="truncate">Disconnect</span>
               </Button>
             </motion.div>
           )}

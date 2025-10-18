@@ -44,8 +44,15 @@ function AddNewSessionDialog() {
     try {
       const result = await axios.get("/api/session-chat?sessionId=all");
       setHistoryList(result.data);
-    } catch (err) {
+    } catch (err: any) {
       console.error("GetHistoryList failed", err);
+      if (err.response?.status !== 401) {
+        toast.error("Failed to load session history", {
+          description:
+            err.response?.data?.message ||
+            "Please refresh the page to try again.",
+        });
+      }
     }
   };
 
@@ -59,10 +66,13 @@ function AddNewSessionDialog() {
       toast.success("Recommendations incoming", {
         description: "Rummaging through our digital medicine cabinet...",
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("suggest-doctors failed", err);
-      toast.error("Hmm, that didn’t go as planned", {
-        description: "Please try again. Our AI is taking a deep breath.",
+      const errorMessage =
+        err.response?.data?.message ||
+        "Please try again. Our AI is taking a deep breath.";
+      toast.error("Hmm, that didn't go as planned", {
+        description: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -82,10 +92,12 @@ function AddNewSessionDialog() {
         });
         router.push("/dashboard/medical-agent/" + result.data.sessionId);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("start consultation failed", err);
+      const errorMessage =
+        err.response?.data?.message || "Please try again in a moment.";
       toast.error("Whoops! The wires got tangled.", {
-        description: "Please try again in a moment.",
+        description: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -97,16 +109,14 @@ function AddNewSessionDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-          <Button
-            className="font-sans font-semibold px-8 py-6 text-base"
-            disabled={!paidUser && historyList?.length >= 1}
-            style={{ boxShadow: "var(--shadow-md)" }}
-            title="Let's get you feeling better, shall we?"
-          >
-            Start consultation
-          </Button>
-        </motion.div>
+        <Button
+          className="font-sans font-semibold px-8 py-6 text-base transition-transform hover:scale-105 active:scale-98"
+          disabled={!paidUser && historyList?.length >= 1}
+          style={{ boxShadow: "var(--shadow-md)" }}
+          title="Let's get you feeling better, shall we?"
+        >
+          Start consultation
+        </Button>
       </DialogTrigger>
       <DialogContent
         className="max-w-3xl bg-card border-border"
@@ -173,60 +183,58 @@ function AddNewSessionDialog() {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-3 sm:gap-0">
-          <DialogClose>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                variant={"outline"}
-                className="font-sans"
-                title="Changed your mind? No judgment here!"
-              >
-                Close
-              </Button>
-            </motion.div>
+          <DialogClose asChild>
+            <Button
+              variant={"outline"}
+              className="font-sans transition-transform hover:scale-105 active:scale-98"
+              title="Changed your mind? No judgment here!"
+            >
+              Close
+            </Button>
           </DialogClose>
 
           {!suggestedDoctors ? (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                disabled={!note || loading}
-                onClick={() => onClickNext()}
-                className="font-sans"
-                title="Let's find you the perfect AI doctor!"
-              >
-                {loading ? (
-                  <>
+            <Button
+              disabled={!note || loading}
+              onClick={() => onClickNext()}
+              className="font-sans transition-transform hover:scale-105 active:scale-98 max-w-full"
+              title="Let's find you the perfect AI doctor!"
+            >
+              {loading ? (
+                <>
+                  <span className="truncate">
                     Consulting the digital sages...
-                    <Loader2 className="animate-spin ml-2" />
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ArrowRight className="ml-2" />
-                  </>
-                )}
-              </Button>
-            </motion.div>
+                  </span>
+                  <Loader2 className="animate-spin ml-2 flex-shrink-0" />
+                </>
+              ) : (
+                <>
+                  Next
+                  <ArrowRight className="ml-2 flex-shrink-0" />
+                </>
+              )}
+            </Button>
           ) : (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                disabled={loading || !selectedDoctor}
-                onClick={() => onStartConsultation()}
-                className="font-sans"
-                title="Off to the virtual examination room!"
-              >
-                {loading ? (
-                  <>
+            <Button
+              disabled={loading || !selectedDoctor}
+              onClick={() => onStartConsultation()}
+              className="font-sans transition-transform hover:scale-105 active:scale-98 max-w-full"
+              title="Off to the virtual examination room!"
+            >
+              {loading ? (
+                <>
+                  <span className="truncate">
                     Rummaging through our digital medicine cabinet...
-                    <Loader2 className="animate-spin ml-2" />
-                  </>
-                ) : (
-                  <>
-                    Start consultation
-                    <ArrowRight className="ml-2" />
-                  </>
-                )}
-              </Button>
-            </motion.div>
+                  </span>
+                  <Loader2 className="animate-spin ml-2 flex-shrink-0" />
+                </>
+              ) : (
+                <>
+                  Start consultation
+                  <ArrowRight className="ml-2 flex-shrink-0" />
+                </>
+              )}
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

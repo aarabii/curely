@@ -55,8 +55,33 @@ Do not include any markdown formatting, code blocks, or additional text. Return 
 `;
 
 export async function POST(req: NextRequest) {
-  const { sessionId, sessionDetail, messages } = await req.json();
   try {
+    const body = await req.json();
+    const { sessionId, sessionDetail, messages } = body;
+
+    // Validate required fields
+    if (!sessionId || !sessionDetail || !messages) {
+      return NextResponse.json(
+        {
+          error: "Missing required fields",
+          message: "sessionId, sessionDetail, and messages are required",
+          code: "MISSING_FIELDS",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        {
+          error: "Invalid messages",
+          message: "Messages must be a non-empty array",
+          code: "INVALID_MESSAGES",
+        },
+        { status: 400 }
+      );
+    }
+
     const UserInput =
       "AI Doctor Agent info:" +
       JSON.stringify(sessionDetail) +
@@ -94,7 +119,12 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error("Failed to parse completion as JSON:", cleaned);
       return NextResponse.json(
-        { error: "Failed to parse LLM response as JSON", raw: cleaned },
+        {
+          error: "Failed to parse AI response",
+          message: "The AI returned an invalid format. Please try again.",
+          code: "INVALID_AI_RESPONSE",
+          raw: cleaned,
+        },
         { status: 422 }
       );
     }
@@ -110,8 +140,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(JsonResp);
   } catch (error) {
     console.error("/api/medical-report error:", error);
+
+    // Handle JSON parsing errors
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        {
+          error: "Invalid request body",
+          message: "Request body must be valid JSON",
+          code: "INVALID_JSON",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle OpenAI API errors
+    if ((error as any)?.status) {
+      return NextResponse.json(
+        {
+          error: "AI service error",
+          message: "Failed to generate report due to AI service error",
+          code: "AI_SERVICE_ERROR",
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 502 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Internal server error",
+        message: "Failed to generate report. Please try again later.",
+        code: "INTERNAL_ERROR",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

@@ -3,9 +3,22 @@ import { AIDoctorAgents } from "@/shared/list";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { notes } = await req.json();
-
   try {
+    const body = await req.json();
+    const { notes } = body;
+
+    // Validate required fields
+    if (!notes || typeof notes !== "string" || notes.trim().length === 0) {
+      return NextResponse.json(
+        {
+          error: "Invalid notes",
+          message: "Please provide valid symptom notes",
+          code: "INVALID_NOTES",
+        },
+        { status: 400 }
+      );
+    }
+
     const completion = await openai.chat.completions.create({
       model: "tencent/hunyuan-a13b-instruct:free",
       messages: [
@@ -46,6 +59,7 @@ Do not return any text outside of the JSON. Do not add commentary. If no doctor 
         },
       ],
     });
+
     // Defensive extraction of text content from the completion response
     const choice = completion?.choices?.[0];
     const rawContent =
@@ -59,18 +73,68 @@ Do not return any text outside of the JSON. Do not add commentary. If no doctor 
 
     try {
       const JsonResp = JSON.parse(cleaned);
+
+      // Validate response is an array
+      if (!Array.isArray(JsonResp)) {
+        console.error("AI response is not an array:", JsonResp);
+        return NextResponse.json(
+          {
+            error: "Invalid AI response format",
+            message: "AI returned unexpected format. Please try again.",
+            code: "INVALID_RESPONSE_FORMAT",
+          },
+          { status: 422 }
+        );
+      }
+
       return NextResponse.json(JsonResp);
     } catch (err) {
-      // Return the raw cleaned string for debugging but with 422 status to indicate parsing issue
+      console.error("Failed to parse AI response as JSON:", cleaned);
       return NextResponse.json(
-        { error: "Failed to parse LLM response as JSON", raw: cleaned },
+        {
+          error: "Failed to parse AI response",
+          message: "The AI returned an invalid format. Please try again.",
+          code: "INVALID_AI_RESPONSE",
+          raw: cleaned,
+        },
         { status: 422 }
       );
     }
   } catch (error) {
     console.error("/api/suggest-doctors error:", error);
+
+    // Handle JSON parsing errors
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        {
+          error: "Invalid request body",
+          message: "Request body must be valid JSON",
+          code: "INVALID_JSON",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle OpenAI API errors
+    if ((error as any)?.status) {
+      return NextResponse.json(
+        {
+          error: "AI service error",
+          message: "Failed to get doctor suggestions due to AI service error",
+          code: "AI_SERVICE_ERROR",
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 502 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Internal server error",
+        message: "Failed to suggest doctors. Please try again later.",
+        code: "INTERNAL_ERROR",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
