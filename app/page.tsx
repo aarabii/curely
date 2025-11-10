@@ -238,7 +238,7 @@ const Navbar = () => {
       <Link href="/" className="flex items-center gap-2">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Image
-            src={"/logo.png"}
+            src={"/logo.svg"}
             alt="logo"
             width={140}
             height={140}

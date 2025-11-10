@@ -71,54 +71,121 @@ function ViewReportDialog({ record }: props) {
       clone.style.width = "800px";
       clone.style.padding = "40px";
       clone.style.backgroundColor = "#ffffff";
-      clone.style.position = "absolute";
-      clone.style.left = "-9999px";
+      // Place the clone fixed at the top-left and translate it offscreen so it's
+      // still part of the render tree but not visible to the user. This helps
+      // html2canvas capture styles reliably (some browsers don't capture
+      // elements positioned too far offscreen).
+      clone.style.position = "fixed";
+      clone.style.left = "0";
       clone.style.top = "0";
+      clone.style.transform = "translateY(-110vh)";
+      clone.style.zIndex = "2147483647";
+      clone.style.visibility = "visible";
 
       document.body.appendChild(clone);
 
       // Force reflow to compute all styles
       clone.offsetHeight;
 
-      // Convert oklab/oklch colors to RGB by reading computed styles
+      // Convert oklab/oklch/utility classes and copy important computed styles
+      // into inline styles so html2canvas can capture gradients, shadows and
+      // modern color definitions which may not serialize otherwise.
       const convertColors = (element: Element) => {
-        if (!(element instanceof HTMLElement)) return;
+        const computed = window.getComputedStyle(element as Element);
 
-        const computed = window.getComputedStyle(element);
-        const htmlEl = element as HTMLElement;
+        // For HTML elements copy common visual properties
+        if (element instanceof HTMLElement) {
+          const el = element as HTMLElement;
 
-        // Convert background color
-        if (
-          computed.backgroundColor &&
-          computed.backgroundColor !== "rgba(0, 0, 0, 0)"
-        ) {
-          htmlEl.style.backgroundColor = computed.backgroundColor;
+          // Backgrounds (solid colors and gradients)
+          if (computed.backgroundImage && computed.backgroundImage !== "none") {
+            el.style.backgroundImage = computed.backgroundImage;
+            // also set shorthand background as a fallback
+            if (computed.background && computed.background !== "none")
+              el.style.background = computed.background;
+            // set background color too as fallback
+            if (
+              computed.backgroundColor &&
+              computed.backgroundColor !== "rgba(0, 0, 0, 0)"
+            ) {
+              el.style.backgroundColor = computed.backgroundColor;
+            }
+          } else if (
+            computed.backgroundColor &&
+            computed.backgroundColor !== "rgba(0, 0, 0, 0)"
+          ) {
+            el.style.backgroundColor = computed.backgroundColor;
+          }
+
+          // Text and font
+          if (computed.color) el.style.color = computed.color;
+          if (computed.fontFamily) el.style.fontFamily = computed.fontFamily;
+          if (computed.fontSize) el.style.fontSize = computed.fontSize;
+          if (computed.lineHeight) el.style.lineHeight = computed.lineHeight;
+
+          // Borders
+          if (computed.borderTopColor)
+            el.style.borderTopColor = computed.borderTopColor;
+          if (computed.borderRightColor)
+            el.style.borderRightColor = computed.borderRightColor;
+          if (computed.borderBottomColor)
+            el.style.borderBottomColor = computed.borderBottomColor;
+          if (computed.borderLeftColor)
+            el.style.borderLeftColor = computed.borderLeftColor;
+
+          // Shadows, opacity and filters
+          if (computed.boxShadow && computed.boxShadow !== "none")
+            el.style.boxShadow = computed.boxShadow;
+          if (computed.opacity) el.style.opacity = computed.opacity;
+          if (computed.filter && computed.filter !== "none")
+            el.style.filter = computed.filter;
+
+          // Sizing hints (helps avoid collapsed elements)
+          if (computed.padding) el.style.padding = computed.padding;
+          if (computed.margin) el.style.margin = computed.margin;
+          if (computed.borderRadius)
+            el.style.borderRadius = computed.borderRadius;
         }
 
-        // Convert text color
-        if (computed.color) {
-          htmlEl.style.color = computed.color;
-        }
-
-        // Convert border colors
-        if (computed.borderTopColor) {
-          htmlEl.style.borderTopColor = computed.borderTopColor;
-        }
-        if (computed.borderRightColor) {
-          htmlEl.style.borderRightColor = computed.borderRightColor;
-        }
-        if (computed.borderBottomColor) {
-          htmlEl.style.borderBottomColor = computed.borderBottomColor;
-        }
-        if (computed.borderLeftColor) {
-          htmlEl.style.borderLeftColor = computed.borderLeftColor;
+        // For SVG elements, copy fill and stroke so icons render in canvas
+        if (element instanceof SVGElement) {
+          const svgComputed = window.getComputedStyle(element as Element);
+          const svgEl = element as SVGElement & { style: any };
+          if (svgComputed.fill && svgComputed.fill !== "none")
+            svgEl.style.fill = svgComputed.fill;
+          if (svgComputed.stroke && svgComputed.stroke !== "none")
+            svgEl.style.stroke = svgComputed.stroke;
         }
 
         // Recursively process children
         Array.from(element.children).forEach(convertColors);
       };
 
+      // Ensure fonts are loaded before taking a snapshot (prevents invisible text)
+      if (
+        document &&
+        (document as any).fonts &&
+        (document as any).fonts.ready
+      ) {
+        await (document as any).fonts.ready;
+      }
+
       convertColors(clone);
+
+      // Disable animations, transitions and backdrop-filters on the clone to get a stable render
+      Array.from(clone.querySelectorAll("*"))?.forEach((c) => {
+        try {
+          const el = c as HTMLElement;
+          el.style.animation = "none";
+          el.style.transition = "none";
+          // html2canvas doesn't handle backdrop-filter or -webkit-backdrop-filter well;
+          // remove them so captured visuals are consistent.
+          (el.style as any).backdropFilter = "none";
+          (el.style as any).webkitBackdropFilter = "none";
+        } catch (e) {
+          // ignore
+        }
+      });
 
       const canvas = await html2canvas(clone, {
         scale: 2,
@@ -127,6 +194,10 @@ function ViewReportDialog({ record }: props) {
         backgroundColor: "#ffffff",
         windowWidth: 800,
         windowHeight: clone.scrollHeight,
+        // foreignObjectRendering preserves CSS better for complex layouts
+        foreignObjectRendering: true,
+        // allowTaint helps when some images/fonts may be considered tainted
+        allowTaint: true,
       });
 
       document.body.removeChild(clone);

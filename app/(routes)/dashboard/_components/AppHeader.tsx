@@ -43,7 +43,7 @@ function AppHeader() {
             transition={{ duration: 0.2 }}
           >
             <Image
-              src={"/logo.png"}
+              src={"/logo.svg"}
               alt="Curely logo"
               width={130}
               height={60}

@@ -17,7 +17,7 @@ export function EmptyState({
   description,
   actionLabel,
   onAction,
-  imageSrc = "/medical-assistance.png",
+  imageSrc = "/logo.svg",
 }: EmptyStateProps) {
   return (
     <div

@@ -103,12 +103,7 @@ function HistoryList() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Image
-              src={"/medical-assistance.png"}
-              alt={"empty"}
-              width={180}
-              height={180}
-            />
+            <Image src={"/logo.svg"} alt={"empty"} width={180} height={180} />
           </motion.div>
           <h2 className="font-serif font-bold text-2xl mt-6 text-foreground">
             Nothing here... yet! 🌱
